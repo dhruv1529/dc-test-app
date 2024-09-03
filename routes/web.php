@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::post('/get-all-data', [UsersController::class,"index"]);
+Route::post('/get-filter-data', [UsersController::class,"index"]);
+Route::get('/dash', [UsersController::class,"dash"]);
+Route::get('/re-filter', [UsersController::class,"reFilter"]);
+Route::get('/top-3-users', [UsersController::class,"getTop3Users"]);
