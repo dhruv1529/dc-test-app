@@ -93,7 +93,15 @@ integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9
                         data: 'rank',
                         orderable:false
                     },
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    if(data.id == $('#search').val()){
+                        $(row).find('td:eq(0)').attr("style","border:1px solid");
+                        $(row).find('td:eq(1)').attr("style","border:1px solid");
+                        $(row).find('td:eq(2)').attr("style","border:1px solid");
+                        $(row).find('td:eq(3)').attr("style","border:1px solid");
+                    }
+                }
             });
             setTimeout(() => {
                     getTop3Users();
@@ -152,7 +160,15 @@ integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9
                         data: 'rank',
                         orderable:false
                     },
-                ]
+                ],createdRow: function(row, data, index) {
+                    console.log("data",data.id);
+                    if(data.id == $('#search').val()){
+                        $(row).find('td:eq(0)').attr("style","border:1px solid");
+                        $(row).find('td:eq(1)').attr("style","border:1px solid");
+                        $(row).find('td:eq(2)').attr("style","border:1px solid");
+                        $(row).find('td:eq(3)').attr("style","border:1px solid");
+                    }
+                }
             });
     }
 
