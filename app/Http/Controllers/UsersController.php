@@ -16,10 +16,7 @@ class UsersController extends Controller
     public function index(Request $request){
         try {
             //code...
-            $pageNumber = ( $request->start / $request->length )+1;
-            $pageLength = $request->length;
-            $skip       = ($pageNumber-1) * $pageLength;
-
+            $perPage = $request->length;
             $query = Users::join('user_activity_histories',"user_activity_histories.user_id","=","users.id")
                             ->join("activities","activities.id","=","user_activity_histories.activity_id")
                             ->select("users.id","users.name","users.user_points as total_points","users.rank")
@@ -39,13 +36,35 @@ class UsersController extends Controller
                         $query = $query->whereBetween("user_activity_histories.entry_date",[date("Y")."-01-01",date('Y')."12-31"]);
                     }
                 }
+
+                $user = [];
                 if($request->filled('search_by')){
-                    $query = $query->where("users.id",$request->search_by);
+
+                    $user = Users::join('user_activity_histories',"user_activity_histories.user_id","=","users.id")
+                            ->join("activities","activities.id","=","user_activity_histories.activity_id")
+                            ->select("users.id","users.name","users.user_points as total_points","users.rank")
+                            ->where("users.id",$request->search_by)
+                            ->groupBy(["users.id","users.name","users.user_points","users.rank"])->orderBy("users.rank","asc")->get()->toArray();
+                            if(!empty($user)){
+                                $user = $user[0];
+                                $query = $query->where("users.id","!=",$request->search_by);
+                            }else{
+                                $query = $query->where("users.id",$request->search_by);
+                            }
                 }
 
                 $recordsFiltered = $recordsTotal = count($query->get()->toArray());
-                $data = $query->offset($request->start)->limit($request->length != -1 ? $request->length : $recordsTotal)
+                $data = $query->offset($request->start)->limit($request->length != -1 ? $perPage : $recordsTotal)
                             ->get()->toArray();
+
+                            if($request->filled('search_by') && !empty($user)){
+                                $newArr = [];
+                                array_push($newArr,$user);
+                                for($i = 0; $i < ($perPage-1); $i++){
+                                    array_push($newArr,$data[$i]);
+                                }
+                                $data = $newArr;
+                            }
             return response()->json(["draw"=> $request->draw, "recordsTotal"=> $recordsTotal, "recordsFiltered" => $recordsFiltered, 'data' => $data], 200);
 
         } catch (Throwable $th) {
